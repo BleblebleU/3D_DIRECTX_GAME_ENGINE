@@ -1,5 +1,4 @@
 #include "WindowsHandler.h"
-
 //const std::string originalTitle = "Hello First Window";
 //
 //LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -57,6 +56,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			if (window.keyboard.OnKeyUp(K_A)) {
+				MessageBox(nullptr, "THE A KEY WAS PRESSED", "The Key enun is working", MB_OK | MB_ICONEXCLAMATION);
+			}
 		}
 
 		if (gResult == -1) {

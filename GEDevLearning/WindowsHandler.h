@@ -1,6 +1,8 @@
 #pragma once
+
 #include "SpeedWin.h"
 #include "ExceptionHandler.h"
+#include "Keyboard.h"
 
 #define LAST_EXCEPTION WindowsHandler::Exception(__LINE__, __FILE__, GetLastError())
 #define EXCEPTION(str) WindowsHandler::Exception(__LINE__, __FILE__, str)
@@ -18,10 +20,13 @@ public:
 		}
 	private:
 		HRESULT _hr;
-		const std::string _exceptionType = "WINDOW HANDLER EXCEPTION";
+		const std::string _exceptionType = "Window Handler Exception";
 	};
 	WindowsHandler(HINSTANCE hInstance, int height, int width);
 	~WindowsHandler();
+
+public:
+	static Keyboard keyboard;
 
 private:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPARAM);
@@ -29,6 +34,7 @@ private:
 
 	static constexpr const char* wndOwnerClassName = "GameEngineLearning";
 	static constexpr const char* WindowTitle = "GameEngine";
+	
 	HINSTANCE instance;
 	HWND hwnd;
 };

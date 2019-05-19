@@ -2,6 +2,8 @@
 #include <sstream>
 #include "resource.h"
 
+Keyboard WindowsHandler::keyboard;
+
 WindowsHandler::WindowsHandler(HINSTANCE hInstance, int height, int width)
 {
 	instance = hInstance;
@@ -60,9 +62,23 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 {
 	switch (msg) {
 	case WM_CLOSE:
-		PostQuitMessage(417
-		);
+		PostQuitMessage(417);
 		break;
+		// clear keystate when window loses focus to prevent input getting "stuck"
+	case WM_KILLFOCUS:
+		keyboard.ClearKeyStates();
+		break;
+		/*********** KEYBOARD MESSAGES ***********/
+	case WM_KEYDOWN:
+		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
+	case WM_SYSKEYDOWN:
+		keyboard.OnKeyPress(wParam, lParam);
+		break;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		keyboard.OnKeyRelease(wParam);
+		break;
+		/*********** END KEYBOARD MESSAGES ***********/
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
