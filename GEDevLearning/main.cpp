@@ -1,4 +1,5 @@
 #include "WindowsHandler.h"
+#include <sstream>
 //const std::string originalTitle = "Hello First Window";
 //
 //LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -58,6 +59,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			DispatchMessage(&msg);
 			if (window.keyboard.OnKeyUp(K_A)) {
 				MessageBox(nullptr, "THE A KEY WAS PRESSED", "The Key enun is working", MB_OK | MB_ICONEXCLAMATION);
+			}
+			if (window.mouse.MouseButtonDown(MB_Middle)) {
+				std::stringstream oss;
+				oss << "THE Left Mouse Button WAS PRESSED AT: (" << window.mouse.MouseX() << ", " << window.mouse.MouseY() << ")";
+				MessageBox(nullptr, oss.str().c_str(), "The MB enun is working", MB_OK | MB_ICONEXCLAMATION);
 			}
 		}
 

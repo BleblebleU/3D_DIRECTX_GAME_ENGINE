@@ -3,7 +3,7 @@
 #include "resource.h"
 
 Keyboard WindowsHandler::keyboard;
-
+Mouse WindowsHandler::mouse;
 WindowsHandler::WindowsHandler(HINSTANCE hInstance, int height, int width)
 {
 	instance = hInstance;
@@ -60,15 +60,24 @@ void WindowsHandler::CreateAWindow(HINSTANCE hInstance, int height, int width)
 
 LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	//RESET KEY UP BOOL IN KEYBOARD
+	keyboard.LastUpKeyReset();
+	//RESET BUTTON UP BOOL IN MOUSE
+	mouse.ButtonUpReset();
+
 	switch (msg) {
 	case WM_CLOSE:
 		PostQuitMessage(417);
 		break;
-		// clear keystate when window loses focus to prevent input getting "stuck"
+
+		// clear keystate/buttonstate when window loses focus to prevent input getting "stuck"
 	case WM_KILLFOCUS:
 		keyboard.ClearKeyStates();
+		mouse.ClearMouse();
 		break;
+
 		/*********** KEYBOARD MESSAGES ***********/
+	{
 	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 	case WM_SYSKEYDOWN:
@@ -78,7 +87,45 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 	case WM_SYSKEYUP:
 		keyboard.OnKeyRelease(wParam);
 		break;
+	}
 		/*********** END KEYBOARD MESSAGES ***********/
+
+		/*********** MOUSE MESSAGES ***********/
+	{
+			// LEFT MOUSE BUTTON
+	case WM_MOUSEMOVE:
+		POINTS pt = MAKEPOINTS(lParam);
+		mouse.m_Coord.x = static_cast<int>(pt.x);
+		mouse.m_Coord.y = static_cast<int>(pt.y);
+	case WM_LBUTTONDOWN:
+		mouse.leftMB_Down = true;
+		break;
+	case WM_LBUTTONUP:
+		mouse.leftMB_Down = false;
+		mouse.leftMB_Up = true;
+		mouse.UpStateTrue();
+		break;
+		// RIGHT MOUSE BUTTON
+	case WM_RBUTTONDOWN:
+		mouse.rightMB_Down = true;
+		break;
+	case WM_RBUTTONUP:
+		mouse.rightMB_Down = false;
+		mouse.rightMB_Up = true;
+		mouse.UpStateTrue();
+		break;
+		// MIDDLE MOUSE BUTTON
+	case WM_MBUTTONDOWN:
+		mouse.middleMB_Down = true;
+		break;
+	case WM_MBUTTONUP:
+		mouse.middleMB_Down = false;
+		mouse.middleMB_Up = true;
+		mouse.UpStateTrue();
+		break;
+	}
+		/*********** END MOUSE MESSAGES ***********/
+
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }

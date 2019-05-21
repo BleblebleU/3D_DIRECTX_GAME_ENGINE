@@ -3,6 +3,7 @@
 #include "SpeedWin.h"
 #include "ExceptionHandler.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 
 #define LAST_EXCEPTION WindowsHandler::Exception(__LINE__, __FILE__, GetLastError())
 #define EXCEPTION(str) WindowsHandler::Exception(__LINE__, __FILE__, str)
@@ -27,6 +28,7 @@ public:
 
 public:
 	static Keyboard keyboard;
+	static Mouse mouse;
 
 private:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPARAM);
