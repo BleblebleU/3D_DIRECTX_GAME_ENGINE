@@ -4,7 +4,13 @@
 
 Keyboard WindowsHandler::keyboard;
 Mouse WindowsHandler::mouse;
+
+std::string WindowsHandler::WindowTitle = "Game Engine";
+
 WindowsHandler::WindowsHandler(HINSTANCE hInstance, int height, int width)
+	:
+	_width(width),
+	_height(height)
 {
 	instance = hInstance;
 	WNDCLASSEX wc = { 0 };
@@ -31,6 +37,14 @@ WindowsHandler::~WindowsHandler()
 	DestroyWindow(hwnd);
 }
 
+void WindowsHandler::SetWndowTitle(std::string title)
+{
+	WindowTitle = "Game Engine" + title;
+	if (SetWindowText(hwnd, WindowTitle.c_str()) == 0) {
+		throw LAST_EXCEPTION;
+	}
+}
+
 void WindowsHandler::CreateAWindow(HINSTANCE hInstance, int height, int width)
 {
 	RECT wr;
@@ -39,13 +53,13 @@ void WindowsHandler::CreateAWindow(HINSTANCE hInstance, int height, int width)
 	wr.top = 100;
 	wr.bottom = height + wr.top;
 
-	if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
+	if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE) == 0)
 	{
 		throw LAST_EXCEPTION;
 	};
 	hwnd = CreateWindowEx(
 		0, wndOwnerClassName,
-		WindowTitle,
+		WindowTitle.c_str(),
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
 		nullptr, nullptr,
@@ -63,7 +77,7 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 	//RESET KEY UP BOOL IN KEYBOARD
 	keyboard.LastUpKeyReset();
 	//RESET BUTTON UP BOOL IN MOUSE
-	mouse.ButtonUpReset();
+	mouse.ButtonStatesReset();
 
 	switch (msg) {
 	case WM_CLOSE:
@@ -94,16 +108,43 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 	{
 			// LEFT MOUSE BUTTON
 	case WM_MOUSEMOVE:
-		POINTS pt = MAKEPOINTS(lParam);
-		mouse.m_Coord.x = static_cast<int>(pt.x);
-		mouse.m_Coord.y = static_cast<int>(pt.y);
+		{
+			POINTS pt = MAKEPOINTS(lParam);
+			if (GetForegroundWindow() == hwnd) {
+				RECT clientRect;
+				GetClientRect(hwnd, &clientRect);
+
+				int width = clientRect.right - clientRect.left;
+				int height = clientRect.bottom - clientRect.top;
+
+				if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height) {
+					mouse.m_Coord.x = static_cast<int>(pt.x);
+					mouse.m_Coord.y = static_cast<int>(pt.y);
+					if (!mouse.inWnd) {
+						SetCapture(hwnd);
+						mouse.inWnd = true;
+					}
+				}
+				else {
+					if (wParam & (MK_LBUTTON | MK_RBUTTON)) {
+						mouse.m_Coord.x = static_cast<int>(pt.x);
+						mouse.m_Coord.y = static_cast<int>(pt.y);
+					}
+					else {
+						ReleaseCapture();
+						mouse.inWnd = false;
+					}
+				}
+			}
+			break;
+		}
 	case WM_LBUTTONDOWN:
 		mouse.leftMB_Down = true;
 		break;
 	case WM_LBUTTONUP:
 		mouse.leftMB_Down = false;
 		mouse.leftMB_Up = true;
-		mouse.UpStateTrue();
+		mouse.StateChangeTrue();
 		break;
 		// RIGHT MOUSE BUTTON
 	case WM_RBUTTONDOWN:
@@ -112,7 +153,7 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 	case WM_RBUTTONUP:
 		mouse.rightMB_Down = false;
 		mouse.rightMB_Up = true;
-		mouse.UpStateTrue();
+		mouse.StateChangeTrue();
 		break;
 		// MIDDLE MOUSE BUTTON
 	case WM_MBUTTONDOWN:
@@ -121,7 +162,17 @@ LRESULT CALLBACK WindowsHandler::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, 
 	case WM_MBUTTONUP:
 		mouse.middleMB_Down = false;
 		mouse.middleMB_Up = true;
-		mouse.UpStateTrue();
+		mouse.StateChangeTrue();
+		break;
+	case WM_MOUSEWHEEL:
+		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+			mouse.scrolledUp = true;
+			mouse.StateChangeTrue();
+		}
+		else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0) {
+			mouse.scrolledDown = true;
+			mouse.StateChangeTrue();
+		}
 		break;
 	}
 		/*********** END MOUSE MESSAGES ***********/

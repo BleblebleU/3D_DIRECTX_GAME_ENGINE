@@ -14,7 +14,15 @@ public:
 	~Mouse();
 	bool MouseButtonDown(MouseButton mbType);
 	bool MouseButtonUp(MouseButton mbType);
-	bool Scrolled();
+	bool ScrollButton();
+
+	bool ScrolledUp() {
+		return scrolledUp;
+	}
+
+	bool ScrolledDown() {
+		return scrolledDown;
+	}
 
 	int MouseX() {
 		return m_Coord.x;
@@ -31,10 +39,10 @@ private:
 
 private:
 	void ClearMouse();
-	void UpStateTrue() {
-		mb_UpStateChanged = true;
+	void StateChangeTrue() {
+		mb_StateChanged = true;
 	}
-	void ButtonUpReset();
+	void ButtonStatesReset();
 private:
 	MouseCoord m_Coord;
 
@@ -48,6 +56,11 @@ private:
 	bool middleMB_Up = false;
 	bool scrolledMB_Up = false;
 
-	bool mb_UpStateChanged = false;
+	bool scrolledUp = false;
+	bool scrolledDown = false;
+	
+	bool inWnd = false;
+
+	bool mb_StateChanged = false;
 };
 

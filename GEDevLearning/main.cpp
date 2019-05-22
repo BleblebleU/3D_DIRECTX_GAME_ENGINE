@@ -57,14 +57,17 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+
 			if (window.keyboard.OnKeyUp(K_A)) {
-				MessageBox(nullptr, "THE A KEY WAS PRESSED", "The Key enun is working", MB_OK | MB_ICONEXCLAMATION);
+				MessageBox(nullptr, "KEYBOARD CHECK", "The Key enun is working", MB_OK | MB_ICONEXCLAMATION);
 			}
-			if (window.mouse.MouseButtonDown(MB_Middle)) {
-				std::stringstream oss;
-				oss << "THE Left Mouse Button WAS PRESSED AT: (" << window.mouse.MouseX() << ", " << window.mouse.MouseY() << ")";
-				MessageBox(nullptr, oss.str().c_str(), "The MB enun is working", MB_OK | MB_ICONEXCLAMATION);
+			if (window.mouse.ScrolledUp()) {
+				MessageBox(nullptr, "MOUSE CHECK", "The MB enun is working", MB_OK | MB_ICONEXCLAMATION);
 			}
+
+			std::stringstream oss;
+			oss << "(" << window.mouse.MouseX() << ", " << window.mouse.MouseY() << ")";
+			window.SetWndowTitle(oss.str());
 		}
 
 		if (gResult == -1) {

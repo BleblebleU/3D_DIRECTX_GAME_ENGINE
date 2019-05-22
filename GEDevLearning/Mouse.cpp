@@ -35,7 +35,7 @@ bool Mouse::MouseButtonUp(MouseButton mbType)
 	return false;
 }
 
-bool Mouse::Scrolled()
+bool Mouse::ScrollButton()
 {
 	return scrolledMB_Down;
 }
@@ -46,14 +46,16 @@ void Mouse::ClearMouse()
 	rightMB_Down = false;
 	middleMB_Down = false;
 	scrolledMB_Down = false;
-	mb_UpStateChanged = false;
+	mb_StateChanged = false;
 }
 
-void Mouse::ButtonUpReset()
+void Mouse::ButtonStatesReset()
 {
-	if (mb_UpStateChanged) {
+	if (mb_StateChanged) {
 		leftMB_Up = false;
 		rightMB_Up = false;
 		middleMB_Up = false;
+		scrolledDown = false;
+		scrolledUp = false;
 	}
 }

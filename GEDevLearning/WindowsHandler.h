@@ -4,6 +4,7 @@
 #include "ExceptionHandler.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include <string>
 
 #define LAST_EXCEPTION WindowsHandler::Exception(__LINE__, __FILE__, GetLastError())
 #define EXCEPTION(str) WindowsHandler::Exception(__LINE__, __FILE__, str)
@@ -25,6 +26,7 @@ public:
 	};
 	WindowsHandler(HINSTANCE hInstance, int height, int width);
 	~WindowsHandler();
+	void SetWndowTitle(std::string title);
 
 public:
 	static Keyboard keyboard;
@@ -35,9 +37,12 @@ private:
 	void CreateAWindow(HINSTANCE hInstance, int height, int width);
 
 	static constexpr const char* wndOwnerClassName = "GameEngineLearning";
-	static constexpr const char* WindowTitle = "GameEngine";
+	static std::string WindowTitle;
 	
 	HINSTANCE instance;
 	HWND hwnd;
+
+	int _width;
+	int _height;
 };
 
